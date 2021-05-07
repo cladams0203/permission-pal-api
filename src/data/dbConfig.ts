@@ -1,4 +1,14 @@
 import Knex from "knex";
-import { knexConfig } from "../knexfile";
+import knexTinyLogger from "knex-tiny-logger";
+import knexConfig from "../knexfile";
 
-export default Knex(knexConfig[process.env.DB_URL || "development"]);
+const checkDebug = () => {
+  if (process.env.DEBUG) {
+    return knexTinyLogger(Knex(knexConfig[process.env.DB_URL || "development"]));
+  } else {
+    return Knex(knexConfig[process.env.DB_URL || "development"]);
+  }
+};
+export default checkDebug();
+
+// export default Knex(knexConfig[process.env.DB_URL || "development"])
