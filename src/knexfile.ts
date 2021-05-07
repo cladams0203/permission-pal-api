@@ -1,10 +1,11 @@
-// Update with your config settings.
+import dotenv from "dotenv";
+dotenv.config();
 
 interface KnexConfig {
   [key: string]: object;
 }
 
-export const knexConfig: KnexConfig = {
+const knexConfig: KnexConfig = {
   development: {
     client: "pg",
     connection: {
@@ -65,3 +66,5 @@ export const knexConfig: KnexConfig = {
     },
   },
 };
+
+export default knexConfig;
