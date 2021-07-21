@@ -1,9 +1,9 @@
 import express, { Request, Response } from "express";
-import userService from "./users.services";
-
+import userService from "./users.service";
+import permissionsService from "../middlewares/permissions.service";
 const router = express.Router();
 
-router.get("/", async (req: Request, res: Response) => {
+router.get("/", permissionsService.superAdmin, async (req: Request, res: Response) => {
   try {
     const users = await userService.find();
     res.status(200).json(users);
