@@ -1,6 +1,8 @@
+import { IRole } from "../roles/roles.types";
+
 export interface IUser {
   id: number;
-  role: Roles;
+  role_id: number;
   username: string;
   first_name: string;
   last_name: string;
@@ -22,7 +24,7 @@ export interface IUserUpdate {
 
 export interface ISeriealizedUser {
   id: number;
-  role: string;
+  role: IRole;
   username: string;
   first_name: string;
   last_name: string;
@@ -30,11 +32,4 @@ export interface ISeriealizedUser {
   address: string;
 }
 
-export type IFindBy =
-  | { username: string }
-  | { email: string }
-  | { apple_id: string }
-  | { facebook_id: string }
-  | { google_id: string };
-
-type Roles = "super_admin" | "school_admin" | "teacher" | "parent" | "student";
+export type IFindBy = { username: string } | { email: string } | { apple_id: string } | { facebook_id: string } | { google_id: string };
