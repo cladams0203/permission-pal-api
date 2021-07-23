@@ -12,4 +12,13 @@ router.get("/", permissionsService.superAdmin, async (req: Request, res: Respons
   }
 });
 
+router.put("/:id", async (req: Request, res: Response) => {
+  try {
+    const updatedUser = await userService.update(+req.params.id, req.body);
+    res.status(201).json(updatedUser);
+  } catch (err) {
+    res.status(500).json(err);
+  }
+});
+
 export default router;
