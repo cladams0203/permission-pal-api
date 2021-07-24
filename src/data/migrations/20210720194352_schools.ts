@@ -5,7 +5,7 @@ export async function up(knex: Knex): Promise<void> {
     tbl.increments();
     tbl.timestamp("created_at").notNullable().defaultTo(knex.fn.now());
     tbl.timestamp("updated_at").notNullable().defaultTo(knex.fn.now());
-    tbl.integer("school_admin_id").unsigned().references("id").inTable("users").onUpdate("CASCADE").onDelete("CASCADE");
+    tbl.integer("school_admin_id").notNullable().unsigned().references("id").inTable("users").onUpdate("CASCADE").onDelete("CASCADE");
     tbl.string("name").notNullable();
     tbl.string("address").notNullable();
     tbl.string("city").notNullable();

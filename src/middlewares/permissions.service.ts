@@ -11,6 +11,7 @@ const superAdmin = async (req: Record<string, any>, res: Response, next: NextFun
     if (role.permission_level > 100) {
       res.status(403).json({ message: "User does not have permission." });
     } else {
+      req.superAdmin = true;
       next();
     }
   } else {
@@ -26,6 +27,7 @@ const schoolAdmin = async (req: Record<string, any>, res: Response, next: NextFu
     if (role.permission_level > 200) {
       res.status(403).json({ message: "User does not have permission." });
     } else {
+      req.schoolAdmin = true;
       next();
     }
   } else {
@@ -41,6 +43,7 @@ const teacherRole = async (req: Record<string, any>, res: Response, next: NextFu
     if (role.permission_level > 300) {
       res.status(403).json({ message: "User does not have permission." });
     } else {
+      req.teacher = true;
       next();
     }
   } else {
@@ -56,6 +59,7 @@ const parentRole = async (req: Record<string, any>, res: Response, next: NextFun
     if (role.permission_level > 400) {
       res.status(403).json({ message: "User does not have permission." });
     } else {
+      req.parent = true;
       next();
     }
   } else {
