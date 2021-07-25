@@ -19,16 +19,7 @@ router.post("/register", async (req: Request, res: Response) => {
     delete newUser.role;
     newUser.role_id = role.id;
     const addedUser = await userService.insert(newUser);
-    const { id, username, first_name, last_name, address, email } = addedUser;
-    const serializedUser: ISeriealizedUser = {
-      id,
-      username,
-      first_name,
-      last_name,
-      address,
-      email,
-      role: role,
-    };
+    const serializedUser = await userService.serializeUser(addedUser);
     const token = generateToken(serializedUser);
     res.status(201).json({ ...serializedUser, token });
   } catch (err) {
@@ -49,18 +40,7 @@ router.post("/login", async (req: Request, res: Response) => {
       res.status(500).json({ message: "User does not exist" });
     }
     if (bcrypt.compareSync(password, user.password)) {
-      const { id, first_name, last_name, address, email, role_id } = user;
-      const role = await rolesService.findById(role_id);
-
-      const serializedUser: ISeriealizedUser = {
-        id,
-        username,
-        first_name,
-        last_name,
-        address,
-        email,
-        role: role,
-      };
+      const serializedUser = await userService.serializeUser(user);
       const token = generateToken(serializedUser);
       res.status(200).json({ ...serializedUser, token });
     }
