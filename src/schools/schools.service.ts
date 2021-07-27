@@ -12,6 +12,11 @@ const findById = async (id: number): Promise<ISchool> => {
   return school;
 };
 
+const findBySchoolAdminId = async (school_admin_id: number): Promise<ISchool> => {
+  const school = await db("schools").where({ school_admin_id }).first();
+  return school;
+};
+
 const findByName = async (name: string): Promise<ISchool[]> => {
   const foundSchools = await db("schools").whereRaw(`name LIKE ${name}%`);
   return foundSchools;
@@ -37,5 +42,6 @@ export default {
   findByName,
   update,
   remove,
+  findBySchoolAdminId,
   serializeSchool,
 };
