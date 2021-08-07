@@ -6,10 +6,10 @@ export async function up(knex: Knex): Promise<void> {
     tbl.timestamp("created_at").defaultTo(knex.fn.now());
     tbl.timestamp("updated_at").defaultTo(knex.fn.now());
     tbl.integer("master_form_id").unsigned().references("id").inTable("forms").onUpdate("CASCADE");
-    tbl.integer("school_id").unsigned().notNullable().references("id").inTable("users").onUpdate("CASCADE");
-    tbl.integer("class_id").unsigned().references("id").inTable("schools").onUpdate("CASCADE");
-    tbl.integer("parent_id").unsigned().references("id").inTable("users");
-    tbl.integer("student_id").unsigned().references("id").inTable("users");
+    tbl.integer("school_id").unsigned().notNullable().references("id").inTable("schools").onUpdate("CASCADE");
+    tbl.integer("class_id").nullable().unsigned().references("id").inTable("classes").onUpdate("CASCADE");
+    tbl.integer("parent_id").nullable().unsigned().references("id").inTable("users");
+    tbl.integer("student_id").nullable().unsigned().references("id").inTable("students");
     tbl.string("name").notNullable();
     tbl.text("description").notNullable();
     tbl.string("base_form_url");
