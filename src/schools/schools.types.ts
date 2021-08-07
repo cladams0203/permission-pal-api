@@ -22,3 +22,14 @@ export interface ISerializedSchool {
   location_lat?: string;
   location_lon?: string;
 }
+
+export interface SchoolDTO {
+  name: string;
+  school_admin_id: number;
+  address: string;
+  city: string;
+  state: string;
+  zip: string;
+  location_lat?: string;
+  location_lon?: string;
+}

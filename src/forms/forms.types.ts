@@ -24,3 +24,12 @@ export interface ISerializedForm {
   owner_signed_url?: string;
   parent_signed_url?: string;
 }
+
+export interface FormDTO {
+  name: string;
+  description: string;
+  form_data: string;
+  base_form_url?: string;
+  owner_signed_url?: string;
+  parent_signed_url?: string;
+}

@@ -1,6 +1,6 @@
 import { QueryBuilder } from "knex";
 import db from "../data/dbConfig";
-import { IClass, ISerializedClass } from "./classes.types";
+import { ClassDTO, IClass, ISerializedClass } from "./classes.types";
 
 const find = async (): Promise<IClass[]> => {
   const classes = await db("classes");
@@ -36,6 +36,12 @@ const remove = (id: number): QueryBuilder<number> => {
   return db("classes").where({ id }).del();
 };
 
+const insert = async (newClass: ClassDTO): Promise<IClass> => {
+  const [addedClass] = await db("classes").insert(newClass, "*");
+  await db("teachers_schools").insert({ teacher_id: addedClass.teacher_id, school_id: addedClass.school_id });
+  return addedClass;
+};
+
 const serializeClass = (rawClass: IClass): ISerializedClass => {
   const { id, grade, class_identity } = rawClass;
   return { id, grade, class_identity };
@@ -47,6 +53,7 @@ export default {
   findAllBySchoolId,
   findAllTeacherId,
   findAllByStudentId,
+  insert,
   update,
   remove,
   serializeClass,

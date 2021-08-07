@@ -2,9 +2,10 @@ import express, { Request, Response } from "express";
 import userService from "./users.service";
 import permissionsService from "../middlewares/permissions.service";
 import { IUser } from "./users.types";
+import studentsService from "../students/students.service";
 const router = express.Router();
 
-router.get("/", permissionsService.superAdmin, async (req: Request, res: Response) => {
+router.get("/", async (req: Request, res: Response) => {
   try {
     const users = await userService.find();
     const serializedUsers = users.map(async (user: IUser) => {
@@ -29,11 +30,38 @@ router.get("/:id", async (req: Request, res: Response) => {
   }
 });
 
+router.get("/parent/:id", async (req: Request, res: Response) => {
+  try {
+    const parent = await userService.findById(+req.params.id);
+    const students = await studentsService.findAllByParentId(parent.id);
+    res.status(200).json({
+      ...userService.serializeUser(parent),
+      students,
+    });
+  } catch (err) {
+    res.status(500).json(err);
+  }
+});
+
 router.put("/:id", async (req: Request, res: Response) => {
   try {
     const updatedUser = await userService.update(+req.params.id, req.body);
     const serializedUser = await userService.serializeUser(updatedUser);
     res.status(201).json(serializedUser);
+  } catch (err) {
+    res.status(500).json(err);
+  }
+});
+
+router.post("/parent/:id/student", async (req: Record<string, any>, res: Response) => {
+  try {
+    const parent = await userService.findById(+req.params.id);
+    await userService.addStudentToParent(+req.body, parent.id);
+    const students = await studentsService.findAllByParentId(parent.id);
+    res.status(201).json({
+      ...userService.serializeUser(parent),
+      students,
+    });
   } catch (err) {
     res.status(500).json(err);
   }

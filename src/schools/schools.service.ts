@@ -1,6 +1,6 @@
 import { QueryBuilder } from "knex";
 import db from "../data/dbConfig";
-import { ISchool, ISerializedSchool } from "./schools.types";
+import { ISchool, ISerializedSchool, SchoolDTO } from "./schools.types";
 
 const find = async (): Promise<ISchool[]> => {
   const schools = await db("schools");
@@ -31,6 +31,11 @@ const remove = (id: number): QueryBuilder<number> => {
   return db("schools").where({ id }).del();
 };
 
+const insert = async (school: SchoolDTO): Promise<ISchool> => {
+  const [newSchool] = await db("schools").insert(school, "*");
+  return newSchool;
+};
+
 const serializeSchool = (school: ISchool): ISerializedSchool => {
   const { id, name, address, city, state, zip, location_lat, location_lon } = school;
   return { id, name, address, city, state, zip, location_lat, location_lon };
@@ -40,6 +45,7 @@ export default {
   find,
   findById,
   findByName,
+  insert,
   update,
   remove,
   findBySchoolAdminId,

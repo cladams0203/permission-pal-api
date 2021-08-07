@@ -4,10 +4,11 @@ import permissionsService from "../middlewares/permissions.service";
 import schoolsService from "../schools/schools.service";
 import teachers_schoolsService from "../teachers_schools/teachers_schools.service";
 import formsService from "./forms.service";
+import { FormDTO } from "./forms.types";
 
 const router = express.Router();
 
-router.get("/", permissionsService.superAdmin, async (req: Request, res: Response) => {
+router.get("/", async (req: Request, res: Response) => {
   try {
     const allForms = await formsService.find();
     res.status(200).json(allForms);
@@ -28,7 +29,7 @@ router.get("/:id", async (req: Request, res: Response) => {
   }
 });
 
-router.get("/master/:id", permissionsService.teacherRole, async (req: Record<string, any>, res: Response) => {
+router.get("/master/:id", async (req: Record<string, any>, res: Response) => {
   try {
     const masterForm = await formsService.findById(+req.params.id);
     if (masterForm.school_id) {
@@ -59,7 +60,7 @@ router.get("/master/:id", permissionsService.teacherRole, async (req: Record<str
   }
 });
 
-router.get("/school/:id", permissionsService.schoolAdmin, async (req: Record<string, any>, res: Response) => {
+router.get("/school/:id", async (req: Record<string, any>, res: Response) => {
   try {
     if (req.permission_level <= 100) {
       const schoolForms = await formsService.findAllBySchoolId(+req.params.id);
@@ -78,7 +79,7 @@ router.get("/school/:id", permissionsService.schoolAdmin, async (req: Record<str
   }
 });
 
-router.get("/class/:id", permissionsService.teacherRole, async (req: Record<string, any>, res: Response) => {
+router.get("/class/:id", async (req: Record<string, any>, res: Response) => {
   try {
     if (req.permission_level <= 100) {
       const classForms = await formsService.findAllByClassId(+req.params.id);
@@ -108,7 +109,7 @@ router.get("/class/:id", permissionsService.teacherRole, async (req: Record<stri
   }
 });
 
-router.get("/parent/:id", permissionsService.parentRole, async (req: Record<string, any>, res: Response) => {
+router.get("/parent/:id", async (req: Record<string, any>, res: Response) => {
   try {
     const parentForms = await formsService.findAllByParentId(+req.params.id);
     res.status(200).json(parentForms.map((x) => formsService.serializeForm(x)));
@@ -126,7 +127,17 @@ router.get("/student/:id", async (req: Request, res: Response) => {
   }
 });
 
-router.put("/:id", permissionsService.parentRole, async (req: Record<string, any>, res: Response) => {
+router.post("/", async (req: Record<string, any>, res: Response) => {
+  try {
+    const form: FormDTO = req.body;
+    const newForm = await formsService.insert(form);
+    res.status(201).json(formsService.serializeForm(newForm));
+  } catch (err) {
+    res.status(500).json(err);
+  }
+});
+
+router.put("/:id", async (req: Record<string, any>, res: Response) => {
   try {
     if (req.permission_level <= 100) {
       const updatedForm = await formsService.update(+req.params.id, req.body);
@@ -169,7 +180,7 @@ router.put("/:id", permissionsService.parentRole, async (req: Record<string, any
   }
 });
 
-router.delete("/:id", permissionsService.schoolAdmin, async (req: Record<string, any>, res: Response) => {
+router.delete("/:id", async (req: Record<string, any>, res: Response) => {
   try {
     if (req.permission_level <= 100) {
       res.status(203).json(await formsService.remove(+req.params.id));

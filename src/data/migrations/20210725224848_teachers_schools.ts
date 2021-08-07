@@ -9,5 +9,5 @@ export async function up(knex: Knex): Promise<void> {
 }
 
 export async function down(knex: Knex): Promise<void> {
-  return knex.schema.dropSchemaIfExists("teachers_schools");
+  return knex.schema.dropTableIfExists("teachers_schools");
 }

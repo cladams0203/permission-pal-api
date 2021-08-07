@@ -1,6 +1,6 @@
 import { QueryBuilder } from "knex";
 import db from "../data/dbConfig";
-import { IForm, ISerializedForm } from "./forms.types";
+import { FormDTO, IForm, ISerializedForm } from "./forms.types";
 
 const find = async (): Promise<IForm[]> => {
   const allForms = await db("forms");
@@ -37,6 +37,11 @@ const findAllByStudentId = async (student_id: number): Promise<IForm[]> => {
   return studentForms;
 };
 
+const insert = async (form: FormDTO): Promise<IForm> => {
+  const [newForm] = await db("forms").insert(form, "*");
+  return newForm;
+};
+
 const update = async (id: number, form: IForm): Promise<IForm> => {
   form.form_data = JSON.stringify(form.form_data);
   const [updatedForm] = await db("forms").where({ id }).update(form, "*");
@@ -64,4 +69,5 @@ export default {
   update,
   remove,
   serializeForm,
+  insert,
 };

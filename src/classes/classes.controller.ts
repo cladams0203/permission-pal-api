@@ -1,11 +1,13 @@
 import express, { Request, Response } from "express";
 import permissionsService from "../middlewares/permissions.service";
 import schoolsService from "../schools/schools.service";
+import studentsService from "../students/students.service";
+import usersService from "../users/users.service";
 import classesService from "./classes.service";
 
 const router = express.Router();
 
-router.get("/", permissionsService.superAdmin, async (req: Request, res: Response) => {
+router.get("/", async (req: Request, res: Response) => {
   try {
     const allClasses = await classesService.find();
     res.status(200).json(allClasses);
@@ -20,7 +22,13 @@ router.get("/:id", async (req: Request, res: Response) => {
     if (!foundClass) {
       res.status(404).json({ message: `Class with the id ${req.params.id} not found` });
     }
-    res.status(200).json(classesService.serializeClass(foundClass));
+    const teacher = usersService.serializeUser(await usersService.findById(foundClass.teacher_id));
+    const students = studentsService.findAllByClassId(foundClass.id);
+    res.status(200).json({
+      ...classesService.serializeClass(foundClass),
+      teacher,
+      students: students,
+    });
   } catch (err) {
     res.status(500).json(err);
   }
@@ -56,7 +64,7 @@ router.get("/student/:id", async (req: Request, res: Response) => {
   }
 });
 
-router.put("/:id", permissionsService.teacherRole, async (req: Record<string, any>, res: Response) => {
+router.put("/:id", async (req: Record<string, any>, res: Response) => {
   try {
     const foundClass = await classesService.findById(+req.params.id);
     if (req.teacher) {
@@ -72,7 +80,7 @@ router.put("/:id", permissionsService.teacherRole, async (req: Record<string, an
   }
 });
 
-router.delete(":id", permissionsService.teacherRole, async (req: Record<string, any>, res: Response) => {
+router.delete(":id", async (req: Record<string, any>, res: Response) => {
   try {
     const foundClass = await classesService.findById(+req.params.id);
     if (req.teacher) {
@@ -82,6 +90,31 @@ router.delete(":id", permissionsService.teacherRole, async (req: Record<string, 
     }
     await classesService.remove(+req.params.id);
     res.status(203).json({ message: `Class ${req.params.id} was deleted` });
+  } catch (err) {
+    res.status(500).json(err);
+  }
+});
+
+router.post("/", async (req: Record<string, any>, res: Response) => {
+  try {
+    const newClass = await classesService.insert(req.body);
+    const teacher = await usersService.findById(newClass.teacher_id);
+    res.status(201).json({ ...classesService.serializeClass(newClass), teacher });
+  } catch (err) {
+    res.status(500).json(err);
+  }
+});
+router.post("/:id/students", async (req: Record<string, any>, res: Response) => {
+  try {
+    const foundClass = await classesService.findById(+req.params.id);
+    if (!foundClass) res.status(404).json({ message: `Class ${req.params.id} not found` });
+    const studentIds: number[] = req.body;
+    const mappedDTO = studentIds.map((x) => ({ student_id: x, class_id: foundClass.id }));
+    const addedStudents = studentsService.addStudentsToClass(mappedDTO, +req.params.id);
+    res.status(201).json({
+      ...classesService.serializeClass(foundClass),
+      students: addedStudents,
+    });
   } catch (err) {
     res.status(500).json(err);
   }
