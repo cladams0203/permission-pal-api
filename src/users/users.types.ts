@@ -30,6 +30,8 @@ export interface ISeriealizedUser {
   last_name?: string;
   email: string;
   address?: string;
+  created_at: string;
+  updated_at: string;
 }
 
 export type IFindBy = { username: string } | { email: string } | { apple_id: string } | { facebook_id: string } | { google_id: string };

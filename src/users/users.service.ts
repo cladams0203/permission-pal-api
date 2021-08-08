@@ -40,9 +40,9 @@ const addStudentToParent = async (student_id: number, parent_id: number): Promis
 };
 
 const serializeUser = async (user: IUser): Promise<ISeriealizedUser> => {
-  const { id, username, first_name, last_name, address, email, role_id } = user;
+  const { id, username, first_name, last_name, address, email, role_id, updated_at, created_at } = user;
   const { role } = await rolesService.findById(role_id);
-  return { id, username, first_name, last_name, address, email, role };
+  return { id, username, first_name, last_name, address, email, role, updated_at, created_at };
 };
 
 export default {
