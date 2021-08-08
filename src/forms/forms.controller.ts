@@ -23,7 +23,7 @@ router.get("/:id", async (req: Request, res: Response) => {
     if (!form) {
       res.status(404).json({ message: `Form ${req.params.id} not found` });
     }
-    res.status(200).json(formsService.serializeForm(form));
+    res.status(200).json(form);
   } catch (err) {
     res.status(500).json(err);
   }
@@ -32,48 +32,51 @@ router.get("/:id", async (req: Request, res: Response) => {
 router.get("/master/:id", async (req: Record<string, any>, res: Response) => {
   try {
     const masterForm = await formsService.findById(+req.params.id);
-    if (masterForm.school_id) {
-      if (req.permission_level <= 100) {
-        const masterForms = await formsService.findAllByMasterId(+req.params.id);
-        res.status(200).json(masterForms);
-      } else if (req.permission_level <= 200) {
-        const school = schoolsService.findBySchoolAdminId(+req.userId);
-        if (!school) {
-          res.status(403).json({ message: `User is not authorized for this school's forms` });
-        }
-        const masterForms = await formsService.findAllByMasterId(+req.params.id);
-        res.status(200).json(masterForms.map((x) => formsService.serializeForm(x)));
-      } else {
-        const teacherSchoolIds = (await teachers_schoolsService.findAllSchoolsByTeacherId(+req.userId)).map((x) => x.id);
-        if (teacherSchoolIds.includes(masterForm.school_id)) {
-          const masterForms = await formsService.findAllByMasterId(+req.params.id);
-          res.status(200).json(masterForms.map((x) => formsService.serializeForm(x)));
-        } else {
-          res.status(403).json({ message: `User is not authorized for this school's forms` });
-        }
-      }
-    } else {
-      res.status(200).json(await formsService.findAllByMasterId(+req.params.id));
-    }
+    // implement when permission middleware is put into place
+    // if (masterForm.school_id) {
+    //   if (req.permission_level <= 100) {
+    //     const masterForms = await formsService.findAllByMasterId(+req.params.id);
+    //     res.status(200).json(masterForms);
+    //   } else if (req.permission_level <= 200) {
+    //     const school = schoolsService.findBySchoolAdminId(+req.userId);
+    //     if (!school) {
+    //       res.status(403).json({ message: `User is not authorized for this school's forms` });
+    //     }
+    //     const masterForms = await formsService.findAllByMasterId(+req.params.id);
+    //     res.status(200).json(masterForms.map((x) => formsService.serializeForm(x)));
+    //   } else {
+    //     const teacherSchoolIds = (await teachers_schoolsService.findAllSchoolsByTeacherId(+req.userId)).map((x) => x.id);
+    //     if (teacherSchoolIds.includes(masterForm.school_id)) {
+    //       const masterForms = await formsService.findAllByMasterId(+req.params.id);
+    //       res.status(200).json(masterForms.map((x) => formsService.serializeForm(x)));
+    //     } else {
+    //       res.status(403).json({ message: `User is not authorized for this school's forms` });
+    //     }
+    //   }
+    // } else {
+    res.status(200).json((await formsService.findAllByMasterId(masterForm.id)).map((x) => formsService.serializeForm(x)));
+    // }
   } catch (err) {
     res.status(500).json(err);
   }
 });
 
-router.get("/school/:id", async (req: Record<string, any>, res: Response) => {
+router.get("/master/school/:id", async (req: Record<string, any>, res: Response) => {
   try {
-    if (req.permission_level <= 100) {
-      const schoolForms = await formsService.findAllBySchoolId(+req.params.id);
-      res.status(200).json(schoolForms);
-    } else {
-      const school = await schoolsService.findById(+req.params.id);
-      if (school.school_admin_id === +req.userId) {
-        const schoolForms = await formsService.findAllBySchoolId(+req.params.id);
-        res.status(200).json(schoolForms.map((x) => formsService.serializeForm(x)));
-      } else {
-        res.status(403).json({ message: `User is not school admin` });
-      }
-    }
+    // implement commented code only when permission middleware is active
+    // if (req.permission_level <= 100) {
+    const schoolForms = await formsService.findAllBySchoolId(+req.params.id);
+    const filteredForms = schoolForms.filter((x) => !x.master_form_id);
+    // res.status(200).json(schoolForms);
+    // } else {
+    // const school = await schoolsService.findById(+req.params.id);
+    // if (school.school_admin_id === +req.userId) {
+    // const schoolForms = await formsService.findAllBySchoolId(+req.params.id);
+    res.status(200).json(filteredForms.map((x) => formsService.serializeForm(x)));
+    // } else {
+    // res.status(403).json({ message: `User is not school admin` });
+    // }
+    // }
   } catch (err) {
     res.status(500).json(err);
   }
@@ -81,29 +84,30 @@ router.get("/school/:id", async (req: Record<string, any>, res: Response) => {
 
 router.get("/class/:id", async (req: Record<string, any>, res: Response) => {
   try {
-    if (req.permission_level <= 100) {
-      const classForms = await formsService.findAllByClassId(+req.params.id);
-      res.status(200).json(classForms);
-    } else {
-      const classroom = await classesService.findById(+req.params.id);
-      const school = await schoolsService.findById(classroom.school_id);
-      if (req.permission_level <= 200) {
-        if (school.school_admin_id === +req.userId) {
-          const classForms = await formsService.findAllByClassId(+req.params.id);
-          res.status(200).json(classForms.map((x) => formsService.serializeForm(x)));
-        } else {
-          res.status(403).json({ message: `User is not school admin` });
-        }
-      } else {
-        const classroom = await classesService.findById(+req.params.id);
-        if (classroom.teacher_id === +req.userId) {
-          const classForms = await formsService.findAllByClassId(+req.params.id);
-          res.status(200).json(classForms.map((x) => formsService.serializeForm(x)));
-        } else {
-          res.status(403).json("User is not authorized for this class");
-        }
-      }
-    }
+    // implement commented code when permission middleware is active
+    // if (req.permission_level <= 100) {
+    const classForms = await formsService.findAllByClassId(+req.params.id);
+    // res.status(200).json(classForms);
+    // } else {
+    // const classroom = await classesService.findById(+req.params.id);
+    // const school = await schoolsService.findById(classroom.school_id);
+    // if (req.permission_level <= 200) {
+    // if (school.school_admin_id === +req.userId) {
+    // const classForms = await formsService.findAllByClassId(+req.params.id);
+    // res.status(200).json(classForms.map((x) => formsService.serializeForm(x)));
+    // } else {
+    // res.status(403).json({ message: `User is not school admin` });
+    // }
+    // } else {
+    // const classroom = await classesService.findById(+req.params.id);
+    // if (classroom.teacher_id === +req.userId) {
+    // const classForms = await formsService.findAllByClassId(+req.params.id);
+    res.status(200).json(classForms.map((x) => formsService.serializeForm(x)));
+    // } else {
+    // res.status(403).json("User is not authorized for this class");
+    // }
+    // }
+    // }
   } catch (err) {
     res.status(500).json(err);
   }
@@ -131,7 +135,7 @@ router.post("/", async (req: Record<string, any>, res: Response) => {
   try {
     const form: FormDTO = req.body;
     const newForm = await formsService.insert(form);
-    res.status(201).json(formsService.serializeForm(newForm));
+    res.status(201).json(newForm);
   } catch (err) {
     res.status(500).json(err);
   }
@@ -139,42 +143,43 @@ router.post("/", async (req: Record<string, any>, res: Response) => {
 
 router.put("/:id", async (req: Record<string, any>, res: Response) => {
   try {
-    if (req.permission_level <= 100) {
-      const updatedForm = await formsService.update(+req.params.id, req.body);
-      res.status(203).json(updatedForm);
-    } else {
-      const form = await formsService.findById(+req.params.id);
-      let formClass;
-      let formSchool;
-      if (form.class_id) {
-        formClass = await classesService.findById(form.class_id);
-      }
-      if (form.school_id) {
-        formSchool = await schoolsService.findById(form.school_id);
-      }
-      if (req.permission_level <= 200) {
-        if (formSchool?.school_admin_id === +req.userId) {
-          const updatedForm = await formsService.update(+req.params.id, req.body);
-          res.status(203).json(formsService.serializeForm(updatedForm));
-        } else {
-          res.status(403).json({ message: `Form does not belong to user's school` });
-        }
-      } else if (req.permission_level <= 300) {
-        if (formClass?.teacher_id === +req.userId) {
-          const updatedForm = await formsService.update(+req.params.id, req.body);
-          res.status(203).json(formsService.serializeForm(updatedForm));
-        } else {
-          res.status(403).json({ message: `Form does not belong to users class` });
-        }
-      } else {
-        if (form.parent_id === +req.userId) {
-          const updatedForm = await formsService.update(+req.params.id, req.body);
-          res.status(203).json(formsService.serializeForm(updatedForm));
-        } else {
-          res.status(403).json({ message: `User is not the parent of the student's form` });
-        }
-      }
-    }
+    // implement commented code when permission middleware is active
+    // if (req.permission_level <= 100) {
+    const updatedForm = await formsService.update(+req.params.id, req.body);
+    res.status(203).json(updatedForm);
+    // } else {
+    // const form = await formsService.findById(+req.params.id);
+    // let formClass;
+    // let formSchool;
+    // if (form.class_id) {
+    //   formClass = await classesService.findById(form.class_id);
+    // }
+    // if (form.school_id) {
+    //   formSchool = await schoolsService.findById(form.school_id);
+    // }
+    // if (req.permission_level <= 200) {
+    //   if (formSchool?.school_admin_id === +req.userId) {
+    //     const updatedForm = await formsService.update(+req.params.id, req.body);
+    //     res.status(203).json(formsService.serializeForm(updatedForm));
+    //   } else {
+    //     res.status(403).json({ message: `Form does not belong to user's school` });
+    //   }
+    // } else if (req.permission_level <= 300) {
+    //   if (formClass?.teacher_id === +req.userId) {
+    //     const updatedForm = await formsService.update(+req.params.id, req.body);
+    //     res.status(203).json(formsService.serializeForm(updatedForm));
+    //   } else {
+    //     res.status(403).json({ message: `Form does not belong to users class` });
+    //   }
+    // } else {
+    //   if (form.parent_id === +req.userId) {
+    //     const updatedForm = await formsService.update(+req.params.id, req.body);
+    //     res.status(203).json(formsService.serializeForm(updatedForm));
+    //   } else {
+    //     res.status(403).json({ message: `User is not the parent of the student's form` });
+    //   }
+    // }
+    // }
   } catch (err) {
     res.status(500).json(err);
   }
@@ -182,19 +187,20 @@ router.put("/:id", async (req: Record<string, any>, res: Response) => {
 
 router.delete("/:id", async (req: Record<string, any>, res: Response) => {
   try {
-    if (req.permission_level <= 100) {
-      res.status(203).json(await formsService.remove(+req.params.id));
-    } else {
-      const form = await formsService.findById(+req.params.id);
-      if (form.school_id) {
-        const school = await schoolsService.findById(form.school_id);
-        if (school.school_admin_id === +req.userId) {
-          res.status(203).json(await formsService.remove(+req.params.id));
-        } else {
-          res.status(403).json({ message: `User is not authorized to remove this form` });
-        }
-      }
-    }
+    // implement commented code when permission middleware is active
+    // if (req.permission_level <= 100) {
+    res.status(203).json(await formsService.remove(+req.params.id));
+    // } else {
+    //   const form = await formsService.findById(+req.params.id);
+    //   if (form.school_id) {
+    //     const school = await schoolsService.findById(form.school_id);
+    //     if (school.school_admin_id === +req.userId) {
+    //       res.status(203).json(await formsService.remove(+req.params.id));
+    //     } else {
+    //       res.status(403).json({ message: `User is not authorized to remove this form` });
+    //     }
+    //   }
+    // }
   } catch (err) {
     res.status(500).json(err);
   }

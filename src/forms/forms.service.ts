@@ -12,8 +12,8 @@ const findById = async (id: number): Promise<IForm> => {
   return form;
 };
 
-const findAllByMasterId = async (master_id: number): Promise<IForm[]> => {
-  const masterForms = await db("forms").where({ master_id });
+const findAllByMasterId = async (master_form_id: number): Promise<IForm[]> => {
+  const masterForms = await db("forms").where({ master_form_id });
   return masterForms;
 };
 
@@ -43,9 +43,8 @@ const insert = async (form: FormDTO): Promise<IForm> => {
 };
 
 const update = async (id: number, form: IForm): Promise<IForm> => {
-  form.form_data = JSON.stringify(form.form_data);
   const [updatedForm] = await db("forms").where({ id }).update(form, "*");
-  return { ...updatedForm, form_data: JSON.parse(updatedForm.form_data) };
+  return updatedForm;
 };
 
 const remove = async (id: number): Promise<number> => {
@@ -53,9 +52,9 @@ const remove = async (id: number): Promise<number> => {
 };
 
 const serializeForm = (form: IForm): ISerializedForm => {
-  const formData = JSON.parse(form.form_data);
-  const { id, name, description, base_form_url, owner_signed_url, parent_signed_url } = form;
-  return { id, name, description, base_form_url, owner_signed_url, parent_signed_url, form_data: formData };
+  // const formData = JSON.parse(form.form_data);
+  const { id, master_form_id, name, description, base_form_url, owner_signed_url, parent_signed_url, form_data } = form;
+  return { id, master_form_id, name, description, base_form_url, owner_signed_url, parent_signed_url, form_data };
 };
 
 export default {

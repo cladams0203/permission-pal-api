@@ -37,7 +37,7 @@ Api for permission pal
 |  GET   |          /api/forms           |               Get all forms                |   Super Admin   |
 |  GET   |        /api/forms/:id         |               Get form by id               |   Basic Token   |
 |  GET   |     /api/forms/master/:id     | Get all forms created off of a master form |     Teacher     |
-|  GET   |     /api/forms/school/:id     |         Get all forms for a school         |  School Admin   |
+|  GET   | /api/forms/master/school/:id  |     Get all master forms for a school      |  School Admin   |
 |  GET   |     /api/forms/class/:id      |         Get all forms for a class          |     Teacher     |
 |  GET   |     /api/forms/parent/:id     |     Get all student forms by parent id     |     Parent      |
 |  GET   |    /api/forms/student/:id     |    Get all student forms by student id     |   Base Token    |
@@ -645,4 +645,248 @@ Returns:
 {
   message: 'Class :id was deleted'
 }
+```
+
+## Forms
+
+#### GET /api/forms
+
+Returns:
+
+```
+[
+  {
+    id: number,
+    created_at: string,
+    updated_at: string,
+    master_form_id: number,
+    school_id: number,
+    class_id: number,
+    parent_id: number,
+    student_id: number,
+    name: string,
+    description: string,
+    base_form_url: string,
+    owner_signed_url: string,
+    parent_signed_url: string,
+    form_data: json
+  }
+]
+```
+
+#### GET /api/forms/:id
+
+id in param represents a form id
+Returns:
+
+```
+{
+  id: number,
+  created_at: string,
+  updated_at: string,
+  master_form_id: number,
+  school_id: number,
+  class_id: number,
+  parent_id: number,
+  student_id: number,
+  name: string,
+  description: string,
+  base_form_url: string,
+  owner_signed_url: string,
+  parent_signed_url: string,
+  form_data: json
+}
+```
+
+#### GET /api/forms/master/:id
+
+id in param represents the master form's id not the master_form_id column
+Returns:
+
+```
+[
+  {
+    id: number,
+    master_form_id: number,             -- If truly a master form this value will be null
+    name: string,
+    description: string,
+    base_form_url: string,
+    owner_signed_url: string,
+    paren_signed_url: string,
+    form_data: json
+  }
+]
+```
+
+#### GET /api/forms/master/school/:id
+
+id in param represents a school id and returns all of the schools master forms
+Returns:
+
+```
+[
+  {
+    id: number,
+    master_form_id: number,             -- If truly a master form this value will be null
+    name: string,
+    description: string,
+    base_form_url: string,
+    owner_signed_url: string,
+    paren_signed_url: string,
+    form_data: json
+  }
+]
+```
+
+#### GET /api/forms/class/:id
+
+id in param represents a class id and returns all forms keyed to the class
+Returns:
+
+```
+[
+  {
+    id: number,
+    master_form_id: number,
+    name: string,
+    description: string,
+    base_form_url: string,
+    owner_signed_url: string,
+    paren_signed_url: string,
+    form_data: json
+  }
+]
+```
+
+#### GET /api/forms/parent/:id
+
+id in param represents a parent's user id and returns all forms heyed to the parent
+Returns:
+
+```
+[
+  {
+    id: number,
+    master_form_id: number,
+    name: string,
+    description: string,
+    base_form_url: string,
+    owner_signed_url: string,
+    paren_signed_url: string,
+    form_data: json
+  }
+]
+```
+
+#### GET /api/forms/student/:id
+
+id in param represents a student record id and returns all forms keyed to a student
+Returns:
+
+```
+[
+  {
+    id: number,
+    master_form_id: number,
+    name: string,
+    description: string,
+    base_form_url: string,
+    owner_signed_url: string,
+    paren_signed_url: string,
+    form_data: json
+  }
+]
+```
+
+#### POST /api/forms
+
+Add a new form, master_form_id should be null if creating a master form
+Accepts:
+
+```
+{
+  master_form_id: number,
+  school_id: number,                    -- required, keys form to school
+  class_id: number,                     -- only assign when keying to a class
+  parent_id: number,                    -- only assign when keying to a parent
+  student_id: number,                   -- only assign when keying to a student
+  name: string,                         -- required
+  description: string,                  -- required
+  base_form_url: string,                -- stored image of base form
+  owner_signed_url: string,             -- stored image of owner signed form
+  parent_signed_url: string,            -- stored image of parent signed form
+  form_data: json                       -- required, json data for the form
+}
+```
+
+Returns:
+
+```
+{
+  id: number,
+  created_at: string,
+  updated_at: string,
+  master_form_id: number,
+  school_id: number,
+  class_id: number,
+  parent_id: number,
+  student_id: number,
+  name: string,
+  description: string,
+  base_form_url: string,
+  owner_signed_url: string,
+  parent_signed_url: string,
+  form_data: json
+}
+```
+
+#### PUT /api/forms/:id
+
+id in param represents form id
+Accepts any of the following keys:
+
+```
+{
+  master_form_id: number,
+  school_id: number,
+  class_id: number,
+  parent_id: number,
+  student_id: number,
+  name: string,
+  description: string,
+  base_form_url: string,
+  owner_signed_url: string,
+  parent_signed_url: string,
+  form_data: json
+}
+```
+
+Returns:
+
+```
+{
+  id: number,
+  created_at: string,
+  updated_at: string,
+  master_form_id: number,
+  school_id: number,
+  class_id: number,
+  parent_id: number,
+  student_id: number,
+  name: string,
+  description: string,
+  base_form_url: string,
+  owner_signed_url: string,
+  parent_signed_url: string,
+  form_data: json
+}
+```
+
+#### DELETE /api/forms/:id
+
+id in param represents form id
+Returns:
+
+```
+number                                -- represents records removed
 ```
