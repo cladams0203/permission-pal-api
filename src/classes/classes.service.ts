@@ -23,7 +23,10 @@ const findAllTeacherId = async (teacher_id: number): Promise<IClass[]> => {
 };
 
 const findAllByStudentId = async (student_id: number): Promise<IClass[]> => {
-  const studentClasses = await db("classes").whereIn("id", async () => await db("students_classes").select("class_id").where({ student_id }));
+  const studentClasses = await db("classes").whereIn(
+    "id",
+    (await db("students_classes").select("class_id").where({ student_id })).map((x) => x.class_id)
+  );
   return studentClasses;
 };
 
@@ -43,8 +46,8 @@ const insert = async (newClass: ClassDTO): Promise<IClass> => {
 };
 
 const serializeClass = (rawClass: IClass): ISerializedClass => {
-  const { id, grade, class_identity } = rawClass;
-  return { id, grade, class_identity };
+  const { id, grade, class_identity, created_at, updated_at } = rawClass;
+  return { id, grade, class_identity, created_at, updated_at };
 };
 
 export default {

@@ -421,3 +421,228 @@ Returns:
 ```
 number                          -- represents how many records were removed
 ```
+
+## Classes
+
+#### GET /api/classes
+
+Returns:
+
+```
+[
+  {
+    id: number,
+    created_at: string,
+    updated_at: string,
+    school_id: number,
+    teacher_id: number,
+    grade: string,
+    class_identity: string
+  }
+]
+```
+
+#### GET /api/classes/:id
+
+id in param represents class id
+Returns:
+
+```
+{
+  id: number,
+  grade: string,
+  class_identity: string,
+  school_id: number,
+  teacher_id: number,
+  created_at: string,
+  updated_at: string,
+  school: {
+    id: number,
+    name: string,
+    address: string,
+    city: string,
+    state: string,
+    zip: string,
+    location_lat: string,
+    location_lon: string,
+  }
+  teacher: {
+    id: number,
+    username: string,
+    first_name: string,
+    last_name: string,
+    address: string,
+    email: string,
+    role: string,
+    updated_at: string,
+    created_at: string
+  },
+  students: [
+    {
+      id: number,
+      school_id: number,
+      student_user_id: number,
+      name: string,
+      date_of_birth: string,
+      student_school_id: string
+    }
+  ]
+}
+```
+
+#### GET /api/classes/school/:id
+
+id in param represents a school id
+Returns:
+
+```
+[
+  {
+    id: number,
+    grade: string,
+    class_identity: string,
+    created_at: string,
+    updated_at: string,
+  }
+]
+```
+
+#### GET /api/classes/teacher/:id
+
+id in param represents a user id for a teacher
+Returns:
+
+```
+[
+  {
+    id: number,
+    grade: string,
+    class_identity: string,
+    created_at: string,
+    updated_at: string,
+  }
+]
+```
+
+#### GET /api/classes/student/:id
+
+id in param represents a student id
+Returns:
+
+```
+[
+  {
+    id: number,
+    grade: string,
+    class_identity: string,
+    created_at: string,
+    updated_at: string,
+  }
+]
+```
+
+#### POST /api/classes
+
+Accepts:
+
+```
+{
+  school_id: number,                      -- required
+  teacher_id: number,                     -- required
+  grade: string,                          -- required
+  class_identity: string                  -- optional
+}
+```
+
+Returns:
+
+```
+{
+  id: number
+  school_id: number,
+  teacher_id: number,
+  grade: string,
+  class_identity,
+  teacher: {
+    id: number,
+    username: string,
+    first_name: string,
+    last_name: string,
+    address: string,
+    email: string,
+    role: string,
+    updated_at: string,
+    created_at: string
+  }
+}
+```
+
+#### POST /api/classes/:id/students
+
+id in param represents a class id
+Accepts:
+
+```
+[
+  number                                -- numbers represent student ids
+]
+```
+
+Returns:
+
+```
+  id: number,
+  school_id: number,
+  teacher_id: number,
+  grade: string,
+  class_identity,
+  students: [
+    {
+      id: number,
+      school_id: number,
+      student_user_id: number,
+      name: string,
+      date_of_birth: string,
+      student_school_id: string
+    }
+  ]
+```
+
+#### PUT /api/classes/:id
+
+id in param represents a class id
+Accepts any of the following keys:
+
+```
+{
+  school_id: number,
+  teacher_id: number,
+  grade: string,
+  class_identity: string
+}
+```
+
+Returns:
+
+```
+{
+  id: number,
+  created_at: string,
+  updated_at: string,
+  school_id: number,
+  teacher_id: number,
+  grade: string,
+  class_identity: string
+}
+```
+
+#### DELETE /api/classes/:id
+
+id in param represents class id
+Returns:
+
+```
+{
+  message: 'Class :id was deleted'
+}
+```

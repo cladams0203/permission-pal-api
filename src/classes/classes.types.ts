@@ -12,6 +12,8 @@ export interface ISerializedClass {
   id: number;
   grade: string;
   class_identity?: string;
+  created_at: string;
+  updated_at: string;
 }
 
 export interface ClassDTO {

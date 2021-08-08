@@ -22,10 +22,12 @@ router.get("/:id", async (req: Request, res: Response) => {
     if (!foundClass) {
       res.status(404).json({ message: `Class with the id ${req.params.id} not found` });
     }
-    const teacher = usersService.serializeUser(await usersService.findById(foundClass.teacher_id));
-    const students = studentsService.findAllByClassId(foundClass.id);
+    const teacher = await usersService.serializeUser(await usersService.findById(foundClass.teacher_id));
+    const students = await studentsService.findAllByClassId(foundClass.id);
+    const school = await schoolsService.findById(foundClass.school_id);
     res.status(200).json({
-      ...classesService.serializeClass(foundClass),
+      ...foundClass,
+      school: schoolsService.serializeSchool(school),
       teacher,
       students: students,
     });
@@ -73,14 +75,14 @@ router.put("/:id", async (req: Record<string, any>, res: Response) => {
       }
     }
     const updatedClass = await classesService.update(+req.params.id, req.body);
-    const serializedUpdate = classesService.serializeClass(updatedClass);
-    res.status(203).json(serializedUpdate);
+
+    res.status(203).json(updatedClass);
   } catch (err) {
     res.status(500).json(err);
   }
 });
 
-router.delete(":id", async (req: Record<string, any>, res: Response) => {
+router.delete("/:id", async (req: Record<string, any>, res: Response) => {
   try {
     const foundClass = await classesService.findById(+req.params.id);
     if (req.teacher) {
@@ -99,7 +101,7 @@ router.post("/", async (req: Record<string, any>, res: Response) => {
   try {
     const newClass = await classesService.insert(req.body);
     const teacher = await usersService.findById(newClass.teacher_id);
-    res.status(201).json({ ...classesService.serializeClass(newClass), teacher });
+    res.status(201).json({ ...classesService.serializeClass(newClass), teacher: await usersService.serializeUser(teacher) });
   } catch (err) {
     res.status(500).json(err);
   }
@@ -110,7 +112,7 @@ router.post("/:id/students", async (req: Record<string, any>, res: Response) => 
     if (!foundClass) res.status(404).json({ message: `Class ${req.params.id} not found` });
     const studentIds: number[] = req.body;
     const mappedDTO = studentIds.map((x) => ({ student_id: x, class_id: foundClass.id }));
-    const addedStudents = studentsService.addStudentsToClass(mappedDTO, +req.params.id);
+    const addedStudents = await studentsService.addStudentsToClass(mappedDTO, +req.params.id);
     res.status(201).json({
       ...classesService.serializeClass(foundClass),
       students: addedStudents,

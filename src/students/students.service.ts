@@ -23,7 +23,10 @@ const remove = (id: number): QueryBuilder<number> => {
 };
 
 const findAllByClassId = async (class_id: number): Promise<IStudent[]> => {
-  const students = await db("students").whereIn("id", async () => await db("students_classes").select("class_id").where({ class_id }));
+  const students = await db("students").whereIn(
+    "id",
+    (await db("students_classes").select("student_id").where({ class_id })).map((x) => x.student_id)
+  );
   return students;
 };
 
