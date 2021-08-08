@@ -18,7 +18,7 @@ const findBySchoolAdminId = async (school_admin_id: number): Promise<ISchool> =>
 };
 
 const findByName = async (name: string): Promise<ISchool[]> => {
-  const foundSchools = await db("schools").whereRaw(`name LIKE ${name}%`);
+  const foundSchools = await db("schools").where("name", "like", `%${name}%`);
   return foundSchools;
 };
 

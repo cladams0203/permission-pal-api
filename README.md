@@ -54,11 +54,11 @@ Api for permission pal
 - teacher = User with Classroom permissions (No School Permissions)
 - parent = User with parent permissions (Sign forms etc..)
 
-## Endpoint Details
+# Endpoint Details
 
 ---
 
-### Auth
+## Auth
 
 #### POST /api/auth/register
 
@@ -121,7 +121,7 @@ Returns:
 }
 ```
 
-### Users
+## Users
 
 #### GET /api/users
 
@@ -180,12 +180,12 @@ Returns:
   created_at: string,
   students: [
     {
-      "id": number,
-      "school_id": number,
-      "student_user_id": number,
-      "name": string,
-      "date_of_birth": string,
-      "student_school_id": string
+      id: number,
+      school_id: number,
+      student_user_id: number,
+      name: string,
+      date_of_birth: string,
+      student_school_id: string
     },
   ]
 }
@@ -217,12 +217,12 @@ Returns:
   created_at: string,
   students: [
     {
-      "id": number,
-      "school_id": number,
-      "student_user_id": number,
-      "name": string,
-      "date_of_birth": string,
-      "student_school_id": string
+      id: number,
+      school_id: number,
+      student_user_id: number,
+      name: string,
+      date_of_birth: string,
+      student_school_id: string
     },
   ]
 }
@@ -235,12 +235,12 @@ Accepts any of these keys:
 
 ```
 {
-  username: string,             -- optional
-  first_name: string,           -- optional
-  last_name: string,            -- optional
-  address: string,              -- optional
-  email: string,                -- optional
-  role: string,                 -- optional
+  username: string,
+  first_name: string,
+  last_name: string,
+  address: string,
+  email: string,
+  role: string,
 }
 ```
 
@@ -258,4 +258,166 @@ Returns:
   updated_at: string,
   created_at: string
 }
+```
+
+## Schools
+
+#### GET /api/schools
+
+Returns:
+
+```
+[
+  {
+    id: number,
+    name: string,
+    address: string,
+    city: string,
+    state: string,
+    zip: string,
+    location_lat: string,
+    location_lon: string
+  }
+]
+```
+
+#### GET /api/schools?name="value"
+
+Accepts a query string in the url labeled name and will return all matches that include the string.
+Returns:
+
+```
+[
+  {
+    id: number,
+    name: string,
+    address: string,
+    city: string,
+    state: string,
+    zip: string,
+    location_lat: string,
+    location_lon: string
+  }
+]
+```
+
+#### GET /api/schools/id
+
+id param represents a school id
+Returns:
+
+```
+{
+  id: number,
+  name: string,
+  address: string,
+  city: string,
+  state: string,
+  zip: string,
+  location_lat: string,
+  location_lon: string,
+  classes: [
+    {
+      id: number,
+      grade: string,
+      class_identity: string
+    }
+  ],
+  school_admin: {
+    id: number,
+    username: string,
+    first_name: string,
+    last_name: string,
+    address: string,
+    email: string,
+    role: string,
+    updated_at: string,
+    created_at: string
+  }
+}
+```
+
+#### POST /api/schools
+
+Accepts:
+
+```
+{
+  school_admin_id: number,                -- required, represents the admin for the school
+  name: string,                           -- required
+  address: string,                        -- required
+  city: string,                           -- required
+  state: string,                          -- required
+  zip: string,                            -- required
+  location_lat: string,                   -- optional  used for geolocation
+  location_lon: string                    -- optional  used for geolocation
+}
+```
+
+Returns:
+
+```
+{
+  id: number,
+  name: string,
+  address: string,
+  city: string,
+  state: string,
+  zip: string,
+  location_lat: string,
+  location_lon: string,
+  school_admin: {
+    id: number,
+    username: string,
+    first_name: string,
+    last_name: string,
+    address: string,
+    email: string,
+    role: string,
+    updated_at: string,
+    created_at: string
+  }
+}
+```
+
+#### PUT /api/schools/:id
+
+id in param represents school id
+Accepts any of the following keys:
+
+```
+{
+  school_admin_id: number,
+  name: string,
+  address: string,
+  city: string,
+  state: string,
+  zip: string,
+  location_lat: string,
+  location_lon: string,
+}
+```
+
+Returns:
+
+```
+{
+  id: number,
+  name: string,
+  address: string,
+  city: string,
+  state: string,
+  zip: string,
+  location_lat: string,
+  location_lon: string,
+}
+```
+
+#### DELETE /api/schools/:id
+
+id in param represents school id
+Returns:
+
+```
+number                          -- represents how many records were removed
 ```

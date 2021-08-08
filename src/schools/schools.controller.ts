@@ -31,7 +31,7 @@ router.get("/:id", async (req: Request, res: Response) => {
     res.status(200).json({
       ...schoolsService.serializeSchool(school),
       classes: schoolClasses,
-      admin: usersService.serializeUser(admin),
+      school_admin: await usersService.serializeUser(admin),
     });
   } catch (err) {
     res.status(500).json(err);
@@ -41,9 +41,11 @@ router.get("/:id", async (req: Request, res: Response) => {
 router.put("/:id", async (req: Record<string, any>, res: Response) => {
   try {
     const school = await schoolsService.findById(+req.params.id);
-    if (school.school_admin_id !== +req.userId || !req.superAdmin) {
-      res.status(403).json({ message: `User is not the admin for ${school.name}` });
-    }
+
+    // Only use when middleware is implemented
+    // if (school.school_admin_id !== +req.userId || !req.superAdmin) {
+    //   res.status(403).json({ message: `User is not the admin for ${school.name}` });
+    // }
     const updatedSchool = await schoolsService.update(+req.params.id, req.body);
     res.status(201).json(schoolsService.serializeSchool(updatedSchool));
   } catch (err) {
@@ -54,9 +56,10 @@ router.put("/:id", async (req: Record<string, any>, res: Response) => {
 router.delete("/:id", async (req: Record<string, any>, res: Response) => {
   try {
     const school = await schoolsService.findById(+req.params.id);
-    if (school.school_admin_id !== +req.userId || !req.superAdmin) {
-      res.status(403).json({ message: `User is not the admin for ${school.name}` });
-    }
+    //Only use when middleware is implemented
+    // if (school.school_admin_id !== +req.userId || !req.superAdmin) {
+    //   res.status(403).json({ message: `User is not the admin for ${school.name}` });
+    // }
     const removed = await schoolsService.remove(+req.params.id);
     res.status(203).json(removed);
   } catch (err) {
@@ -68,7 +71,10 @@ router.post("/", async (req: Record<string, any>, res: Response) => {
   try {
     const newSchool = await schoolsService.insert(req.body);
     const schoolAdmin = await usersService.findById(newSchool.school_admin_id);
-    res.status(201).json({ ...schoolsService.serializeSchool(newSchool), schoolAdmin });
+    res.status(201).json({
+      ...schoolsService.serializeSchool(newSchool),
+      school_admin: await usersService.serializeUser(schoolAdmin),
+    });
   } catch (err) {
     res.status(500).json(err);
   }
