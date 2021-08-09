@@ -43,7 +43,7 @@ const uploader = (file: any, folder: any) => {
   });
 };
 
-router.post("/form-images", upload.single("image"), async (req: Request, res: Response) => {
+router.post("/form-images", upload.single("image"), async (req: any, res: Response) => {
   try {
     const uploadedFile = req?.file?.path;
     if (uploadedFile) {
