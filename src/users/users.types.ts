@@ -1,15 +1,17 @@
 export interface IUser {
   id: number;
-  role: Roles;
+  created_at: string;
+  updated_at: string;
+  role_id: number;
   username: string;
-  first_name: string;
-  last_name: string;
+  first_name?: string;
+  last_name?: string;
   email: string;
-  address: string;
+  address?: string;
   password: string;
-  apple_id: string;
-  facebook_id: string;
-  google_id: string;
+  apple_id?: string;
+  facebook_id?: string;
+  google_id?: string;
 }
 
 export interface IUserUpdate {
@@ -22,19 +24,14 @@ export interface IUserUpdate {
 
 export interface ISeriealizedUser {
   id: number;
-  role: string;
+  role?: string;
   username: string;
-  first_name: string;
-  last_name: string;
+  first_name?: string;
+  last_name?: string;
   email: string;
-  address: string;
+  address?: string;
+  created_at: string;
+  updated_at: string;
 }
 
-export type IFindBy =
-  | { username: string }
-  | { email: string }
-  | { apple_id: string }
-  | { facebook_id: string }
-  | { google_id: string };
-
-type Roles = "super_admin" | "school_admin" | "teacher" | "parent" | "student";
+export type IFindBy = { username: string } | { email: string } | { apple_id: string } | { facebook_id: string } | { google_id: string };

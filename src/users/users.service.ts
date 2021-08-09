@@ -1,6 +1,9 @@
 import { QueryBuilder } from "knex";
 import db from "../data/dbConfig";
-import { IFindBy, IUser, IUserUpdate } from "./users.types";
+import rolesService from "../roles/roles.service";
+import studentsService from "../students/students.service";
+import { IStudent } from "../students/students.ypes";
+import { IFindBy, ISeriealizedUser, IUser, IUserUpdate } from "./users.types";
 
 const find = async (): Promise<IUser[]> => {
   const users = await db("users");
@@ -31,6 +34,17 @@ const remove = (id: number): QueryBuilder<number> => {
   return db("users").where({ id }).del();
 };
 
+const addStudentToParent = async (student_id: number, parent_id: number): Promise<IStudent> => {
+  await db("students_parents").insert({ student_id, parent_id });
+  return await studentsService.findById(student_id);
+};
+
+const serializeUser = async (user: IUser): Promise<ISeriealizedUser> => {
+  const { id, username, first_name, last_name, address, email, role_id, updated_at, created_at } = user;
+  const { role } = await rolesService.findById(role_id);
+  return { id, username, first_name, last_name, address, email, role, updated_at, created_at };
+};
+
 export default {
   find,
   findById,
@@ -38,4 +52,6 @@ export default {
   insert,
   update,
   remove,
+  serializeUser,
+  addStudentToParent,
 };
